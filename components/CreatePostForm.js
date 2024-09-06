@@ -1,18 +1,26 @@
 'use client';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function CreatePostForm({onPostCreated}) {
+  const { data: session } = useSession();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!session) {
+      setError('You must be signed in to create a post.');
+      return;
+    }
+
     const response = await fetch('/api/posts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content,createdBy:session.user.id }),
     });
     if (response.ok) {
       const newPost = await response.json();

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import User from './User';
 
 const PostSchema = new mongoose.Schema({
   title: {
@@ -13,6 +14,11 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdBy:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required:true,
+  }
 });
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema);
