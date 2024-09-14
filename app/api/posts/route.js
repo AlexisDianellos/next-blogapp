@@ -4,6 +4,8 @@ import Post from '@/models/Post';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import mongoose from 'mongoose';
+import { put } from '@vercel/blob';
+
 
 export async function GET(req) {
   await connectToDatabase();
@@ -20,15 +22,31 @@ export async function POST(req) {
     }
 
     await connectToDatabase();
-    const { title, content } = await req.json();
+
+    const { searchParams } = new URL(req.url);
+    const filename = searchParams.get('filename') || "";
+    
+    if(filename){
+
+      const formData = await req.formData(); // Use formData to handle file uploads
+      const title = formData.get('title');
+      const content = formData.get('content');
+      const file = formData.get('file'); 
+
+    const blob = await put(filename, file, {
+      access: 'public',
+    });
 
     const userId = new mongoose.Types.ObjectId(session.user.id);
 
-    const newPost = await Post.create({ title, content, createdBy:userId });
+    const newPost = await Post.create({ title, content,image:blob.url, createdBy:userId });
 
     const populatedPost = await Post.findById(newPost._id).populate('createdBy', 'name').exec();
     
-    return NextResponse.json(populatedPost, { status: 201 });
+    return NextResponse.json(blob);
+  }else{
+    return NextResponse.json({message:"No filename detected"});
+  }
   } catch (error) {
     console.error('Error creating post:', error);
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
