@@ -40,6 +40,7 @@ export default function Home() {
         {posts.map((post) => (
           <li key={post._id} className="mt-4">
             <Link href={`/posts/${post._id}`}>
+              <img src={post.image} className="w-1/2"/>
               <h2 className="text-xl font-semibold">{post.title}</h2>
               <p>{post.content}</p> 
               <p>{post.createdBy?.name || 'Unkown User'}</p>
