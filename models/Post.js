@@ -14,6 +14,10 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  image:{
+    type:String,
+    required:true,
+  },
   createdBy:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
